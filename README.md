@@ -109,3 +109,6 @@ Designed for professional workflows requiring pixel-perfect color fidelity and d
 
 **[中文]**
 专为需要像素级色彩保真和动态保留的专业工作流设计，所有参数开放用于精细控制。
+
+看到这里了，请给我点颗星星，谢谢！
+If you find this helpful, please star the repository. Thank you!
