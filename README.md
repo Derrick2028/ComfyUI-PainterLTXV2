@@ -1,8 +1,14 @@
 # ComfyUI-PainterLTXV2
 
+# 此节点由绘画小子制作
+
 **Advanced LTXV Sampling & Latent Preparation for ComfyUI**
 
 ComfyUI custom nodes providing LTXV audio-video separation sampling and latent preparation capabilities for professional video generation workflows.
+
+**PainterLTXV2：ComfyUI 的 LTXV 高级采样与潜空间准备节点**
+
+为专业视频生成工作流提供 LTXV 音视频分离采样和潜空间准备功能的 ComfyUI 自定义节点。
 
 ---
 <img width="2111" height="869" alt="image" src="https://github.com/user-attachments/assets/f04aed96-acd5-4645-b655-187cfc17cf87" />
@@ -33,9 +39,7 @@ ComfyUI custom nodes providing LTXV audio-video separation sampling and latent p
 - 自动生成噪声遮罩实现时序控制
 
 
-**ComfyUI 的 LTXV 高级采样与潜空间准备节点**
 
-为专业视频生成工作流提供 LTXV 音视频分离采样和潜空间准备功能的 ComfyUI 自定义节点。
 
 
 
