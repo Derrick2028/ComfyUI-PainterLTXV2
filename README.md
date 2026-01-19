@@ -4,40 +4,86 @@
 
 **Advanced LTXV Sampling & Latent Preparation for ComfyUI**
 
-ComfyUI custom nodes providing LTXV audio-video separation sampling and latent preparation capabilities for professional video generation workflows.
+## 支持：文生视频+图生视频+尾帧视频+首尾帧视频+潜空间放大。
+不连图片就是文生视频，可单独连首帧或者尾帧，或者首尾帧
 
-**PainterLTXV2：ComfyUI 的 LTXV 高级采样与潜空间准备节点，图生文生一体，效果和官方一致，让工作流简洁明了**
+# PainterLTX2VPlus
 
-为专业视频生成工作流提供 LTXV 音视频分离采样和潜空间准备功能的 ComfyUI 自定义节点。
+<img width="890" height="455" alt="image" src="https://github.com/user-attachments/assets/e5009b8c-f73b-4bfe-9fd6-5eb78f9e2c93" />
+
+
+**全能型 LTXV 视频潜变量生成节点 | All-in-One LTXV Latent Generator**
 
 ---
-<img width="2111" height="869" alt="image" src="https://github.com/user-attachments/assets/f04aed96-acd5-4645-b655-187cfc17cf87" />
+## 带放大功能工作流
+<img width="2083" height="1008" alt="image" src="https://github.com/user-attachments/assets/6cb90d03-9cd8-4782-bfa6-38c369eaf09c" />
 
+## 不带放大功能工作流
+<img width="1760" height="1012" alt="image" src="https://github.com/user-attachments/assets/8d9fdbdc-5d45-4204-a9ce-f226278de9bf" />
 
+## 功能特点 | Features
 
+支持文生视频、图生视频、首尾帧控制与潜在空间放大。  
+Supports text-to-video, image-to-video, first/last frame control, and latent upscaling.
 
+整合 LTXVLatentUpsampler 与首末帧控制功能于一体。  
+Combines LTXVLatentUpsampler and first/last frame control in one node.
 
-### PainterLTXVtoVideo This is an all-in-one ComfyUI node for text-to-video and image-to-video generation.
+可接入音频 VAE 生成音视频同步内容。  
+Supports audio VAE for synchronized audio-video generation.
 
+输出口自动分离视频与音频潜变量，适配双采样器工作流。  
+Automatically splits video and audio latents for dual-sampler workflows.
 
-<img width="1251" height="656" alt="image" src="https://github.com/user-attachments/assets/6d6bea7e-18df-4c65-aa67-d671a620c831" />
+返回设定的宽高数值，便于下游节点直接调用。  
+Returns configured width and height for downstream nodes.
 
+---
 
-**[English]**
-- If the initial frame image is connected, the system will execute image-to-video generation; if the initial frame image is disconnected, it will execute text-to-video generation. If the audio input is disconnected, a silent video will be generated.
-- Precise latent dimension calculation for LTXV models
-- Optional image input for first-frame conditioning
-- Audio VAE integration for complete audio-video pipeline
-- Automatic noise mask generation for temporal control
+## 输入说明 | Inputs
 
-### PainterLTXVtoVideo 这是一个文生视频+图生视频一体式comfyui节点
+**video_vae**: 视频 VAE 模型 | Video VAE model  
+**width/height**: 视频分辨率 | Video resolution  
+**length**: 视频帧数 | Number of frames  
+**frame_rate**: 帧率 | Frame rate  
+**batch_size**: 批处理大小 | Batch size  
+**audio_vae (可选)**: 音频 VAE | Audio VAE (optional)  
+**start_image (可选)**: 首帧图像 | First frame image (optional)  
+**end_image (可选)**: 尾帧图像 | Last frame image (optional)  
+**latent (可选)**: 输入潜变量 | Input latent (optional)  
+**upscale_model (可选)**: 放大模型 | Upscale model (optional)
 
-**[中文]**
-- 如果接入首帧图，则执行图生视频，如果断开连接首帧图，则执行文生视频，音频如果断开，则生成无声视频
-- 精确的 LTXV 模型潜空间维度计算
-- 可选图像输入用于首帧条件控制
-- Audio VAE 集成，支持完整音视频 pipeline
-- 自动生成噪声遮罩实现时序控制
+---
+
+## 输出说明 | Outputs
+
+**latent**: 主潜变量 | Main latent  
+**video_latent**: 视频潜变量 | Video latent  
+**audio_latent**: 音频潜变量 | Audio latent  
+**width**: 设定宽度 | Configured width  
+**height**: 设定高度 | Configured height
+
+---
+
+## 使用场景 | Use Cases
+
+仅连始帧 = 图生视频基础模式  
+Start-frame only = Basic image-to-video mode
+
+首尾帧同连 = 视频插值与过渡  
+Both frames = Video interpolation and transition
+
+接入 latent = 潜变量续写与重采样  
+With latent = Latent continuation and resampling
+
+叠加放大模型 = 高清化预处理  
+Plus upscale model = High-resolution preprocessing
+
+---
+
+## 一句话介绍 | One-Liner
+
+**Generate LTXV latents with frame control and upscaling for advanced video synthesis.**
 
 
 
