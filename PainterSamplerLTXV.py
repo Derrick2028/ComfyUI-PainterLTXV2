@@ -6,7 +6,7 @@ import latent_preview
 import comfy.utils
 import comfy.nested_tensor
 from typing_extensions import override
-from comfy_api.latest import io
+from comfy_api.latest import ComfyExtension, io
 
 
 class PainterSamplerLTXV(io.ComfyNode):
@@ -28,6 +28,8 @@ class PainterSamplerLTXV(io.ComfyNode):
                 io.Conditioning.Input("positive"),
                 io.Conditioning.Input("negative"),
                 io.Latent.Input("latent_image"),
+                io.Latent.Input("video_latent", optional=True),
+                io.Latent.Input("audio_latent", optional=True),
                 io.Int.Input("start_at_step", default=0, min=0, max=10000),
                 io.Int.Input("end_at_step", default=10000, min=0, max=10000),
                 io.Combo.Input("return_noise", options=["disable", "enable"]),
@@ -42,7 +44,7 @@ class PainterSamplerLTXV(io.ComfyNode):
 
     @classmethod
     def execute(cls, model, add_noise, noise_seed, steps, cfg, sampler_name, scheduler, positive, negative, 
-                latent_image, start_at_step, end_at_step, return_noise, sigmas=None) -> io.NodeOutput:
+                latent_image, start_at_step, end_at_step, return_noise, video_latent=None, audio_latent=None, sigmas=None) -> io.NodeOutput:
         
         force_full_denoise = True
         if return_noise == "enable":
@@ -50,23 +52,44 @@ class PainterSamplerLTXV(io.ComfyNode):
         
         disable_noise = False
         if add_noise == "disable":
-            disable_noise = True
+            disable_noise = False
 
-        latent = latent_image
-        latent_image_tensor = latent["samples"]
+        # Determine which latent to use
+        input_latent = latent_image
+        if video_latent is not None and audio_latent is not None:
+            # Combine video and audio latents into nested tensor
+            video_samples = video_latent.get("samples")
+            audio_samples = audio_latent.get("samples")
+            
+            if video_samples is not None and audio_samples is not None:
+                input_latent = video_latent.copy()
+                input_latent["samples"] = comfy.nested_tensor.NestedTensor((video_samples, audio_samples))
+                
+                # Combine noise masks if present
+                video_mask = video_latent.get("noise_mask")
+                audio_mask = audio_latent.get("noise_mask")
+                
+                if video_mask is not None or audio_mask is not None:
+                    if video_mask is None:
+                        video_mask = torch.ones_like(video_samples)
+                    if audio_mask is None:
+                        audio_mask = torch.ones_like(audio_samples)
+                    input_latent["noise_mask"] = comfy.nested_tensor.NestedTensor((video_mask, audio_mask))
+
+        latent_image_tensor = input_latent["samples"]
         latent_image_tensor = comfy.sample.fix_empty_latent_channels(model, latent_image_tensor)
-        latent["samples"] = latent_image_tensor
+        input_latent["samples"] = latent_image_tensor
 
         if disable_noise:
             noise_tensor = torch.zeros(latent_image_tensor.size(), dtype=latent_image_tensor.dtype, 
                                       layout=latent_image_tensor.layout, device="cpu")
         else:
-            batch_inds = latent.get("batch_index", None)
+            batch_inds = input_latent.get("batch_index", None)
             noise_tensor = comfy.sample.prepare_noise(latent_image_tensor, noise_seed, batch_inds)
 
         noise_mask = None
-        if "noise_mask" in latent:
-            noise_mask = latent["noise_mask"]
+        if "noise_mask" in input_latent:
+            noise_mask = input_latent["noise_mask"]
 
         x0_output = {}
         callback_steps = len(sigmas) - 1 if sigmas is not None and len(sigmas) > 0 else steps
@@ -99,32 +122,42 @@ class PainterSamplerLTXV(io.ComfyNode):
                 callback=callback, disable_pbar=disable_pbar, seed=noise_seed
             )
 
-        out = latent.copy()
+        out = input_latent.copy()
         out["samples"] = samples
 
-        video_latent = out.copy()
-        audio_latent = out.copy()
+        video_latent_out = out.copy()
+        audio_latent_out = out.copy()
         
         if isinstance(samples, comfy.nested_tensor.NestedTensor):
             latents = samples.unbind()
             if len(latents) >= 2:
-                video_latent["samples"] = latents[0]
-                audio_latent["samples"] = latents[1]
+                video_latent_out["samples"] = latents[0]
+                audio_latent_out["samples"] = latents[1]
                 
                 if "noise_mask" in out and isinstance(out["noise_mask"], comfy.nested_tensor.NestedTensor):
                     masks = out["noise_mask"].unbind()
                     if len(masks) >= 2:
-                        video_latent["noise_mask"] = masks[0]
-                        audio_latent["noise_mask"] = masks[1]
+                        video_latent_out["noise_mask"] = masks[0]
+                        audio_latent_out["noise_mask"] = masks[1]
             else:
-                video_latent["samples"] = latents[0] if len(latents) > 0 else samples
-                audio_latent["samples"] = torch.empty(0, device=samples.device, dtype=samples.dtype)
+                video_latent_out["samples"] = latents[0] if len(latents) > 0 else samples
+                audio_latent_out["samples"] = torch.empty(0, device=samples.device, dtype=samples.dtype)
         else:
-            video_latent["samples"] = samples
-            audio_latent["samples"] = torch.empty(0, device=samples.device, dtype=samples.dtype)
+            video_latent_out["samples"] = samples
+            audio_latent_out["samples"] = torch.empty(0, device=samples.device, dtype=samples.dtype)
             
             if "noise_mask" in out:
-                video_latent["noise_mask"] = out["noise_mask"]
-                audio_latent["noise_mask"] = torch.empty(0, device=out["noise_mask"].device, dtype=out["noise_mask"].dtype)
+                video_latent_out["noise_mask"] = out["noise_mask"]
+                audio_latent_out["noise_mask"] = torch.empty(0, device=out["noise_mask"].device, dtype=out["noise_mask"].dtype)
 
-        return io.NodeOutput(out, video_latent, audio_latent)
+        return io.NodeOutput(out, video_latent_out, audio_latent_out)
+
+
+class PainterSamplerExtension(ComfyExtension):
+    @override
+    async def get_node_list(self) -> list[type[io.ComfyNode]]:
+        return [PainterSamplerLTXV]
+
+
+async def comfy_entrypoint() -> PainterSamplerExtension:
+    return PainterSamplerExtension()
